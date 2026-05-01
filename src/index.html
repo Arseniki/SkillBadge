@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>SkillBadge | Certification Blockchain</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="home-container">
+        <div class="home-card">
+            <div class="logo" style="justify-content: center; margin-bottom: 32px;">
+                <div class="logo-icon"><i class="fas fa-certificate"></i></div>
+                <span>Skill<span style="color: var(--primary-light);">Badge</span></span>
+            </div>
+            
+            <h1 style="text-align: center; margin-bottom: 16px;">Bienvenue sur SkillBadge</h1>
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 40px;">
+                La plateforme de certification blockchain pour les talents du Burkina Faso
+            </p>
+
+            <div class="role-cards">
+                <div class="role-card" onclick="window.location.href='login.html'">
+                    <i class="fas fa-user-graduate"></i>
+                    <h3>Apprenant</h3>
+                    <p>Consultez vos badges et votre progression</p>
+                    <span class="role-badge">Se connecter →</span>
+                </div>
+                <!--<div class="role-card" onclick="window.location.href='login_formateur.html'">-->
+                <div class="role-card" onclick="window.location.href='loginFormateur.html'">
+                    <i class="fas fa-chalkboard-user"></i>
+                    <h3>Formateur</h3>
+                    <p>Émettez des badges sur la blockchain</p>
+                    <span class="role-badge">Se connecter →</span>
+                </div>
+                <div class="role-card" onclick="window.location.href='recruteur.html'">
+                    <i class="fas fa-building"></i>
+                    <h3>Recruteur</h3>
+                    <p>Vérifiez les compétences des candidats</p>
+                    <span class="role-badge">Accès libre →</span>
+                </div>
+            </div>
+
+            <div class="theme-toggle-container">
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <i class="fas fa-sun"></i> <i class="fas fa-moon"></i> Changer de thème
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Vérifier le thème sauvegardé
+        const savedTheme = localStorage.getItem('skillbadge_theme');
+        if (savedTheme === 'dark') document.body.classList.add('dark');
+        else document.body.classList.add('light');
+    </script>
+</body>
+</html>

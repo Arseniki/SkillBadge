@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Formateur - SkillBadge</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo" onclick="window.location.href='index.html'" style="cursor:pointer;">
+                <div class="logo-icon"><i class="fas fa-chalkboard-user"></i></div>
+                <span>Skill<span style="color: var(--primary-light);">Badge</span> Formateur</span>
+            </div>
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <div class="theme-toggle" onclick="toggleTheme()">
+                    <i class="fas fa-sun"></i> <i class="fas fa-moon"></i>
+                </div>
+                <div class="user-info">
+                    <div class="avatar" id="formateurAvatar">KT</div>
+                    <span id="formateurNameDisplay">Koanda Tinga</span>
+                    <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap;">
+            <div>
+                <h2 id="welcomeFormateur">Koanda Tinga</h2>
+                <p style="color: var(--text-secondary);"><i class="fas fa-chalkboard-user"></i> Formateur - CodeLab BF · Ouagadougou</p>
+            </div>
+            <div class="badge-success"><i class="fas fa-link"></i> <span id="formateurWallet">0xKoanda...7b4e</span></div>
+        </div>
+
+        <!-- KPI -->
+        <div class="grid-4">
+            <div class="card kpi-card"><i class="fas fa-certificate" style="font-size: 28px;"></i><div class="kpi-number" id="badgesCount">42</div><p>Badges émis</p></div>
+            <div class="card kpi-card"><i class="fas fa-users" style="font-size: 28px;"></i><div class="kpi-number" id="studentsCount">18</div><p>Apprenants</p></div>
+            <div class="card kpi-card"><i class="fas fa-tags" style="font-size: 28px;"></i><div class="kpi-number" id="badgeTypesCount">5</div><p>Types de badges</p></div>
+            <div class="card kpi-card"><i class="fas fa-clock" style="font-size: 28px;"></i><div class="kpi-number" id="pendingCount">3</div><p>En attente</p></div>
+        </div>
+
+        <div class="grid-2">
+            <!-- Créer un badge -->
+            <div class="card">
+                <h3><i class="fas fa-plus-circle"></i> Créer un badge</h3>
+                <div class="form-group">
+                    <label>Nom du badge</label>
+                    <input type="text" id="badgeName" placeholder="Ex: React.js Avancé">
+                </div>
+                <div class="form-group">
+                    <label>Compétence</label>
+                    <select id="badgeSkill">
+                        <option>Développement Web</option>
+                        <option>Développement Mobile</option>
+                        <option>Data & IA</option>
+                        <option>Cybersécurité</option>
+                        <option>UI/UX Design</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Description / Critères</label>
+                    <textarea rows="2" id="badgeDesc" placeholder="Décrire les critères de validation..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Niveau</label>
+                    <div class="level-selector">
+                        <div class="level-option" data-level="debutant" onclick="selectLevel(this, 'debutant')">🟢 Débutant</div>
+                        <div class="level-option selected" data-level="intermediaire" onclick="selectLevel(this, 'intermediaire')">🟡 Intermédiaire</div>
+                        <div class="level-option" data-level="avance" onclick="selectLevel(this, 'avance')">🔴 Avancé</div>
+                    </div>
+                </div>
+                <div class="blockchain-tag" style="margin: 12px 0;"><i class="fas fa-cube"></i> 📍 NFT sur Polygon · 0x1B3F_01C</div>
+                <button class="btn-primary" onclick="createBadge()"><i class="fas fa-mint"></i> Créer le badge</button>
+            </div>
+
+            <!-- Attribuer un badge + Mes badges -->
+            <div>
+                <div class="card" style="margin-bottom: 20px;">
+                    <h3><i class="fas fa-user-plus"></i> Attribuer un badge</h3>
+                    <div class="form-group">
+                        <label>Sélectionner le badge</label>
+                        <select id="assignBadgeSelect"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Choisir l'apprenant</label>
+                        <select id="assignStudentSelect"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Note d'évaluation</label>
+                        <textarea rows="2" id="assignComment" placeholder="Ajouter un commentaire..."></textarea>
+                    </div>
+                    <button class="btn-primary" onclick="assignBadge()"><i class="fas fa-link"></i> Émettre sur blockchain</button>
+                </div>
+                <div class="card">
+                    <h3><i class="fas fa-list"></i> Mes badges créés</h3>
+                    <div id="formateurBadgesList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activité récente -->
+        <div class="card">
+            <h3><i class="fas fa-history"></i> Activité récente</h3>
+            <div id="recentActivity"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

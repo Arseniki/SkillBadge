@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Apprenant - SkillBadge</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo" onclick="window.location.href='index.html'" style="cursor:pointer;">
+                <div class="logo-icon"><i class="fas fa-certificate"></i></div>
+                <span>Skill<span style="color: var(--primary-light);">Badge</span></span>
+            </div>
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <div class="theme-toggle" onclick="toggleTheme()">
+                    <i class="fas fa-sun"></i> <i class="fas fa-moon"></i>
+                </div>
+                <div class="user-info">
+                    <div class="avatar" id="apprenantAvatar">OS</div>
+                    <span id="apprenantNameDisplay">Oumar Sawadogo</span>
+                    <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap;">
+            <div>
+                <h2 id="welcomeApprenant">Oumar Sawadogo</h2>
+                <p style="color: var(--text-secondary);"><i class="fas fa-map-marker-alt"></i> Ouagadougou, Burkina Faso</p>
+            </div>
+            <div class="badge-success">Progression globale: <span id="progressPercent">72</span>%</div>
+        </div>
+
+        <div class="grid-2">
+            <!-- Mes badges -->
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-certificate"></i> Mes badges</h3>
+                    <div style="display: flex; gap: 8px;">
+                        <span class="badge-success">Badges</span>
+                        <span class="badge-success">Compétences</span>
+                        <span class="badge-success">Vérifié</span>
+                    </div>
+                </div>
+                <div id="apprenantBadgesList"></div>
+            </div>
+
+            <!-- Détail badge + Notifications -->
+            <div>
+                <div class="card" style="margin-bottom: 20px;">
+                    <h3><i class="fas fa-info-circle"></i> Détail du badge</h3>
+                    <div id="badgeDetail">
+                        <p><i class="fas fa-school"></i> <strong>Émis par</strong> CodeLab BF</p>
+                        <p><i class="fas fa-user"></i> <strong>Formateur</strong> Koanda Tinga</p>
+                        <p><i class="fas fa-calendar"></i> <strong>Date</strong> <span id="detailDate">12 avr. 2026</span></p>
+                        <p><i class="fas fa-cube"></i> <strong>Réseau</strong> Polygon</p>
+                        <p><i class="fas fa-link"></i> <strong>Hash blockchain</strong> <span class="blockchain-tag" id="detailTx">0xa83f7d_c91b4e</span></p>
+                        <button class="btn-outline" style="margin-top: 12px;" onclick="shareBadge()"><i class="fas fa-share-alt"></i> Partager ce badge →</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3><i class="fas fa-bell"></i> Notifications</h3>
+                    <div id="apprenantNotifications"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Partager mon portfolio -->
+        <div class="card" style="margin-bottom: 24px;">
+            <h3><i class="fas fa-qrcode"></i> Partager mon portfolio</h3>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                <code style="background: var(--bg-primary); padding: 12px 16px; border-radius: 40px; flex: 1; font-size: 12px;" id="portfolioLink">https://skillbadge.bf/0xOumar...3f2a</code>
+                <button class="btn-primary" style="width: auto;" onclick="copyLink()"><i class="fas fa-copy"></i> Copier</button>
+                <button class="btn-outline" onclick="exportApprenantPDF()"><i class="fas fa-download"></i> Exporter PDF</button>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <!-- Ma progression -->
+            <div class="card">
+                <h3><i class="fas fa-chart-line"></i> Ma progression</h3>
+                <div id="skillsProgress">
+                    <div class="skill-item"><span>React.js</span><div class="progress-bar"><div class="progress-fill" style="width: 85%"></div></div></div>
+                    <div class="skill-item"><span>Flutter</span><div class="progress-bar"><div class="progress-fill" style="width: 60%"></div></div></div>
+                    <div class="skill-item"><span>UI/UX Design</span><div class="progress-bar"><div class="progress-fill" style="width: 45%"></div></div></div>
+                    <div class="skill-item"><span>Python</span><div class="progress-bar"><div class="progress-fill" style="width: 30%"></div></div></div>
+                </div>
+            </div>
+            <!-- Prochain badge recommandé -->
+            <div class="card">
+                <h3><i class="fas fa-lightbulb"></i> Prochain badge recommandé</h3>
+                <div class="badge-item">
+                    <span><i class="fab fa-react"></i> React.js Expert</span>
+                    <span class="badge-success">Proposé par CodeLab BF</span>
+                </div>
+                <p style="margin: 12px 0; font-size: 13px; color: var(--text-secondary);">
+                    Complétez votre profil à 85% en obtenant ce badge
+                </p>
+                <button class="btn-primary" onclick="requestBadge()"><i class="fas fa-rocket"></i> Postuler</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

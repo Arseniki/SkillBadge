@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription Apprenant - SkillBadge</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="logo" style="justify-content: center; margin-bottom: 24px;">
+                <div class="logo-icon"><i class="fas fa-certificate"></i></div>
+                <span>Skill<span style="color: var(--primary-light);">Badge</span></span>
+            </div>
+            
+            <h2 style="text-align: center; margin-bottom: 24px;">Inscription Apprenant</h2>
+
+            <div class="form-group">
+                <label><i class="fas fa-user"></i> Nom complet</label>
+                <input type="text" id="regName" placeholder="Oumar Sawadogo">
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-envelope"></i> Email</label>
+                <input type="email" id="regEmail" placeholder="exemple@email.com">
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-phone"></i> Numéro de téléphone</label>
+                <input type="tel" id="regPhone" placeholder="+226 XX XX XX XX">
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-lock"></i> Mot de passe</label>
+                <input type="password" id="regPassword" placeholder="••••••••">
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-lock"></i> Confirmer le mot de passe</label>
+                <input type="password" id="regConfirmPassword" placeholder="••••••••">
+            </div>
+            <button class="btn-primary" onclick="handleRegister()">Créer mon compte</button>
+
+            <p style="text-align: center; margin-top: 24px; color: var(--text-secondary);">
+                Déjà un compte ? <a href="login.html" style="color: var(--primary);">Se connecter</a>
+            </p>
+            <button class="btn-outline" style="margin-top: 16px; width: 100%;" onclick="window.location.href='index.html'">
+                <i class="fas fa-arrow-left"></i> Retour à l'accueil
+            </button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

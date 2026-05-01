@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portail Recruteur - SkillBadge</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .verification-methods {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        .method-btn {
+            flex: 1;
+            padding: 12px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .method-btn.active {
+            border-color: var(--primary);
+            background: rgba(0, 158, 96, 0.1);
+            color: var(--primary-light);
+        }
+        .method-btn:hover {
+            border-color: var(--primary);
+        }
+        .verification-panel {
+            display: none;
+        }
+        .verification-panel.active {
+            display: block;
+        }
+        .qr-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 20px;
+        }
+        #qrcode {
+            background: white;
+            padding: 16px;
+            border-radius: 20px;
+            margin-bottom: 16px;
+        }
+        .verification-result {
+            margin-top: 24px;
+            padding: 20px;
+            background: rgba(0, 158, 96, 0.1);
+            border-radius: 20px;
+            border-left: 4px solid var(--primary);
+            display: none;
+        }
+        .verification-result.show {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+        .badge-list-verif {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .badge-verif-item {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .tx-hash {
+            font-family: monospace;
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+        .status-valid {
+            color: var(--primary-light);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo" onclick="window.location.href='index.html'" style="cursor:pointer;">
+                <div class="logo-icon"><i class="fas fa-building"></i></div>
+                <span>Skill<span style="color: var(--primary-light);">Badge</span> Recruteur</span>
+            </div>
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <div class="theme-toggle" onclick="toggleTheme()">
+                    <i class="fas fa-sun"></i> <i class="fas fa-moon"></i>
+                </div>
+                <button class="btn-outline" onclick="window.location.href='index.html'">
+                    <i class="fas fa-home"></i> Accueil
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div style="margin-bottom: 24px;">
+            <h2>SkillBadge - Portail Recruteur</h2>
+            <p style="color: var(--text-secondary);">Vérifiez instantanément les compétences d'un candidat sur la blockchain</p>
+        </div>
+
+        <!-- Méthodes de vérification -->
+        <div class="card">
+            <h3><i class="fas fa-search"></i> Vérifier un candidat</h3>
+            
+            <div class="verification-methods">
+                <div class="method-btn active" onclick="switchVerifMethod('wallet')">
+                    <i class="fas fa-link"></i> Adresse Wallet
+                </div>
+                <div class="method-btn" onclick="switchVerifMethod('link')">
+                    <i class="fas fa-qrcode"></i> Scanner QR Code
+                </div>
+                <div class="method-btn" onclick="switchVerifMethod('manual')">
+                    <i class="fas fa-keyboard"></i> Recherche manuelle
+                </div>
+            </div>
+
+            <!-- Panneau 1 : Adresse Wallet -->
+            <div id="panel-wallet" class="verification-panel active">
+                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                    <input type="text" id="walletAddress" placeholder="Entrez l'adresse wallet du candidat (ex: 0xOumar...3f2a)" style="flex: 1;">
+                    <button class="btn-primary" style="width: auto;" onclick="verifyByWallet()">
+                        <i class="fas fa-check-circle"></i> Vérifier
+                    </button>
+                </div>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 12px;">
+                    <i class="fas fa-info-circle"></i> Exemple d'adresse : 0xOumar...3f2a, 0xAminata...7b4e, 0xYannick...9d2c
+                </p>
+            </div>
+
+            <!-- Panneau 2 : QR Code (simulation) -->
+            <div id="panel-link" class="verification-panel">
+                <p style="margin-bottom: 16px;">Scannez le QR code fourni par le candidat :</p>
+                <div class="qr-container">
+                    <div id="qrcode"></div>
+                    <p style="font-size: 13px; color: var(--text-secondary);">
+                        <i class="fas fa-mobile-alt"></i> Utilisez l'appareil photo de votre téléphone
+                    </p>
+                    <button class="btn-outline" onclick="simulateQRScan()">
+                        <i class="fas fa-camera"></i> Simuler un scan
+                    </button>
+                </div>
+                <div style="margin-top: 16px; padding: 12px; background: var(--bg-primary); border-radius: 12px;">
+                    <p style="font-size: 13px;"><i class="fas fa-link"></i> Lien du QR :</p>
+                    <code style="font-size: 11px;">https://skillbadge.bf/0xOumar...3f2a</code>
+                    <button class="btn-outline" style="margin-top: 8px; width: 100%;" onclick="testQRCode()">
+                        Tester le QR code
+                    </button>
+                </div>
+            </div>
+
+            <!-- Panneau 3 : Recherche manuelle -->
+            <div id="panel-manual" class="verification-panel">
+                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                    <input type="text" id="manualSearch" placeholder="Nom du candidat (Oumar, Aminata, Yannick...)" style="flex: 1;">
+                    <button class="btn-primary" style="width: auto;" onclick="searchByName()">
+                        <i class="fas fa-search"></i> Rechercher
+                    </button>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px;">
+                    <span class="badge-success" onclick="quickSearch('Oumar Sawadogo')">Oumar Sawadogo</span>
+                    <span class="badge-success" onclick="quickSearch('Aminata Koné')">Aminata Koné</span>
+                    <span class="badge-success" onclick="quickSearch('Yannick Dabiré')">Yannick Dabiré</span>
+                    <span class="badge-success" onclick="quickSearch('Fatou B.')">Fatou B.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Résultat de vérification -->
+        <div id="verificationResult" class="verification-result">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                <i class="fas fa-check-circle" style="font-size: 28px; color: var(--primary);"></i>
+                <div>
+                    <strong>✅ Identité vérifiée sur blockchain Polygon</strong>
+                    <p id="verifiedIdentity" style="font-size: 13px; margin: 0;">Oumar Sawadogo · 6 badges valides</p>
+                </div>
+            </div>
+            <div class="blockchain-tag" style="margin-bottom: 16px;">
+                <i class="fas fa-cube"></i> Hash de vérification : <span id="verifTxHash">0xa83f7d_c93D4e</span>
+            </div>
+            <h4><i class="fas fa-certificate"></i> Badges certifiés :</h4>
+            <div id="verifBadgesList" class="badge-list-verif"></div>
+            <div style="display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap;">
+                <button class="btn-primary" onclick="contactCandidateFromVerif()">
+                    <i class="fas fa-envelope"></i> Contacter le candidat
+                </button>
+                <button class="btn-outline" onclick="exportVerification()">
+                    <i class="fas fa-download"></i> Exporter le rapport
+                </button>
+            </div>
+        </div>
+
+        <!-- Ancienne section résultats (gardée pour compatibilité) -->
+        <div class="grid-2" style="margin-top: 24px;">
+            <div class="card">
+                <h3><i class="fas fa-users"></i> Talents récents</h3>
+                <div id="candidatesList"></div>
+            </div>
+            <div class="card">
+                <h3><i class="fas fa-bookmark"></i> Shortlist</h3>
+                <div id="shortlistContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Fonctions supplémentaires pour la vérification
+        let currentVerifMethod = 'wallet';
+
+        function switchVerifMethod(method) {
+            currentVerifMethod = method;
+            document.querySelectorAll('.method-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.closest('.method-btn').classList.add('active');
+            
+            document.querySelectorAll('.verification-panel').forEach(panel => panel.classList.remove('active'));
+            document.getElementById(`panel-${method}`).classList.add('active');
+        }
+
+        // Vérification par adresse wallet
+        function verifyByWallet() {
+            const wallet = document.getElementById('walletAddress').value;
+            if (!wallet) {
+                showToast('Veuillez entrer une adresse wallet');
+                return;
+            }
+            
+            // Chercher l'étudiant correspondant
+            const student = blockchainData.students.find(s => 
+                s.wallet.toLowerCase().includes(wallet.toLowerCase()) || 
+                wallet.toLowerCase().includes(s.wallet.toLowerCase())
+            );
+            
+            if (student) {
+                displayVerificationResult(student);
+                showToast(`✅ Candidat trouvé : ${student.name}`);
+            } else {
+                // Simulation pour démonstration
+                const demoStudent = blockchainData.students[0];
+                displayVerificationResult(demoStudent);
+                showToast(`⚠️ Adresse non trouvée, affichage du candidat de démonstration`);
+            }
+        }
+
+        // Simulation scan QR code
+        function simulateQRScan() {
+            const demoStudent = blockchainData.students[0];
+            displayVerificationResult(demoStudent);
+            showToast(`📱 QR Code scanné ! Candidat : ${demoStudent.name}`);
+        }
+
+        function testQRCode() {
+            const demoStudent = blockchainData.students[0];
+            displayVerificationResult(demoStudent);
+            showToast(`🔗 Lien vérifié : ${demoStudent.name}`);
+        }
+
+        // Recherche par nom
+        function searchByName() {
+            const search = document.getElementById('manualSearch').value.toLowerCase();
+            const student = blockchainData.students.find(s => 
+                s.name.toLowerCase().includes(search)
+            );
+            if (student) {
+                displayVerificationResult(student);
+                showToast(`✅ Candidat trouvé : ${student.name}`);
+            } else {
+                showToast('❌ Aucun candidat trouvé avec ce nom');
+            }
+        }
+
+        function quickSearch(name) {
+            const student = blockchainData.students.find(s => s.name === name);
+            if (student) {
+                displayVerificationResult(student);
+                document.getElementById('manualSearch').value = name;
+                showToast(`✅ Candidat sélectionné : ${name}`);
+            }
+        }
+
+        // Affichage du résultat de vérification
+        function displayVerificationResult(student) {
+            // Récupérer les badges complets avec leurs détails
+            const badgesWithDetails = student.badges.map(badgeName => {
+                const badgeInfo = blockchainData.badges.find(b => b.name === badgeName);
+                return {
+                    name: badgeName,
+                    level: badgeInfo?.level || 'Intermédiaire',
+                    issuer: badgeInfo?.issuer || 'CodeLab BF',
+                    date: badgeInfo?.date || '2026',
+                    tx: badgeInfo?.tx || '0x' + Math.random().toString(36).substring(2, 14)
+                };
+            });
+
+            // Générer le HTML des badges
+            const badgesHtml = badgesWithDetails.map(b => `
+                <div class="badge-verif-item">
+                    <span><i class="fas fa-certificate" style="color: var(--primary);"></i> <strong>${b.name}</strong></span>
+                    <span class="badge-success">${b.level}</span>
+                    <span>Émis par ${b.issuer}</span>
+                    <span class="tx-hash">TX: ${b.tx}</span>
+                    <span class="status-valid"><i class="fas fa-check-circle"></i> Valide</span>
+                </div>
+            `).join('');
+
+            // Mettre à jour le résultat
+            document.getElementById('verifiedIdentity').innerHTML = `${student.name} · ${student.badges.length} badges valides · ${student.city}`;
+            document.getElementById('verifTxHash').innerHTML = `0x${Math.random().toString(36).substring(2, 14)}_${Date.now().toString(36)}`;
+            document.getElementById('verifBadgesList').innerHTML = badgesHtml;
+            document.getElementById('verificationResult').classList.add('show');
+            
+            // Scroll vers le résultat
+            document.getElementById('verificationResult').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function contactCandidateFromVerif() {
+            showToast('📧 Message envoyé au candidat !');
+        }
+
+        function exportVerification() {
+            const student = blockchainData.students[0];
+            showToast(`📄 Rapport de vérification exporté pour ${student.name}`);
+        }
+
+        // Générer le QR code au chargement
+        document.addEventListener('DOMContentLoaded', () => {
+            // Générer QR code
+            const qrDiv = document.getElementById('qrcode');
+            if (qrDiv && typeof QRCode !== 'undefined') {
+                new QRCode(qrDiv, {
+                    text: 'https://skillbadge.bf/0xOumar...3f2a',
+                    width: 200,
+                    height: 200
+                });
+            } else {
+                qrDiv.innerHTML = '<div style="padding:20px; background:white; border-radius:16px;">📱 QR Code: skillbadge.bf/0xOumar</div>';
+            }
+            
+            // Mettre à jour la liste des candidats
+            updateRecruteurUI();
+        });
+
+        // Override updateRecruteurUI pour garder la compatibilité
+        const originalUpdateRecruteurUI = updateRecruteurUI;
+        window.updateRecruteurUI = function() {
+            originalUpdateRecruteurUI();
+            const filter = document.getElementById('candidateFilter')?.value.toLowerCase() || '';
+            const filtered = blockchainData.students.filter(s => s.name.toLowerCase().includes(filter));
+            document.getElementById('candidatesList').innerHTML = filtered.map(s => `
+                <div class="student-item" onclick="quickSearch('${s.name}')">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <div class="avatar" style="width:32px;height:32px;font-size:12px;">${s.avatar}</div>
+                        <span>${s.name}</span>
+                    </div>
+                    <span>${s.badges.length} badges · ${s.city}</span>
+                    <span class="badge-success">Score ${s.score}</span>
+                </div>
+            `).join('');
+            updateShortlist();
+        };
+        
+        window.updateRecruteurUI();
+    </script>
+</body>
+</html>
