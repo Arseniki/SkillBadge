@@ -7,6 +7,101 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Styles améliorés pour formateur */
+        .preview-badge {
+            background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary));
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid var(--border);
+            margin-top: 16px;
+        }
+        .preview-badge-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            font-size: 36px;
+        }
+        .student-detail-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        .student-detail-modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: var(--bg-secondary);
+            border-radius: 24px;
+            padding: 32px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .gas-indicator {
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: rgba(0,158,96,0.1);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .chart-bar {
+            background: var(--bg-primary);
+            border-radius: 8px;
+            height: 8px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+        .chart-fill {
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            height: 100%;
+            border-radius: 8px;
+            transition: width 0.5s;
+        }
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .filter-input {
+            flex: 1;
+            padding: 10px 14px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+        }
+        .export-btn {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+        .stats-chip {
+            background: var(--bg-primary);
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 12px;
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar">
@@ -19,6 +114,9 @@
                 <div class="theme-toggle" onclick="toggleTheme()">
                     <i class="fas fa-sun"></i> <i class="fas fa-moon"></i>
                 </div>
+                <div class="stats-chip">
+                    <i class="fas fa-gas-pump"></i> Gas: <span id="gasPrice">12</span> Gwei
+                </div>
                 <div class="user-info">
                     <div class="avatar" id="formateurAvatar">KT</div>
                     <span id="formateurNameDisplay">Koanda Tinga</span>
@@ -29,33 +127,56 @@
     </nav>
 
     <div class="container">
+        <!-- En-tête -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap;">
             <div>
-                <h2 id="welcomeFormateur">Koanda Tinga</h2>
-                <p style="color: var(--text-secondary);"><i class="fas fa-chalkboard-user"></i> Formateur - CodeLab BF · Ouagadougou</p>
+                <h2>Tableau de bord Formateur</h2>
+                <p style="color: var(--text-secondary);"><i class="fas fa-chalkboard-user"></i> CodeLab BF · Ouagadougou</p>
             </div>
-            <div class="badge-success"><i class="fas fa-link"></i> <span id="formateurWallet">0xKoanda...7b4e</span></div>
+            <div class="badge-success">
+                <i class="fas fa-link"></i> Wallet: <span id="formateurWallet">0xKoanda...7b4e</span>
+            </div>
         </div>
 
-        <!-- KPI -->
+        <!-- KPI améliorés -->
         <div class="grid-4">
-            <div class="card kpi-card"><i class="fas fa-certificate" style="font-size: 28px;"></i><div class="kpi-number" id="badgesCount">42</div><p>Badges émis</p></div>
-            <div class="card kpi-card"><i class="fas fa-users" style="font-size: 28px;"></i><div class="kpi-number" id="studentsCount">18</div><p>Apprenants</p></div>
-            <div class="card kpi-card"><i class="fas fa-tags" style="font-size: 28px;"></i><div class="kpi-number" id="badgeTypesCount">5</div><p>Types de badges</p></div>
-            <div class="card kpi-card"><i class="fas fa-clock" style="font-size: 28px;"></i><div class="kpi-number" id="pendingCount">3</div><p>En attente</p></div>
+            <div class="card kpi-card">
+                <i class="fas fa-certificate" style="font-size: 28px;"></i>
+                <div class="kpi-number" id="badgesCount">42</div>
+                <p>Badges émis</p>
+                <span class="stats-chip">+12 ce mois</span>
+            </div>
+            <div class="card kpi-card">
+                <i class="fas fa-users" style="font-size: 28px;"></i>
+                <div class="kpi-number" id="studentsCount">18</div>
+                <p>Apprenants actifs</p>
+                <span class="stats-chip">+3 nouvelles inscriptions</span>
+            </div>
+            <div class="card kpi-card">
+                <i class="fas fa-chart-line" style="font-size: 28px;"></i>
+                <div class="kpi-number" id="successRate">94</div>
+                <p>Taux de réussite</p>
+                <div class="chart-bar"><div class="chart-fill" style="width: 94%"></div></div>
+            </div>
+            <div class="card kpi-card">
+                <i class="fas fa-clock" style="font-size: 28px;"></i>
+                <div class="kpi-number" id="pendingCount">3</div>
+                <p>En attente</p>
+                <button class="btn-outline" style="margin-top: 8px; padding: 4px 12px; font-size: 11px;" onclick="showPendingBadges()">Voir détails →</button>
+            </div>
         </div>
 
         <div class="grid-2">
-            <!-- Créer un badge -->
+            <!-- Créer un badge avec aperçu -->
             <div class="card">
                 <h3><i class="fas fa-plus-circle"></i> Créer un badge</h3>
                 <div class="form-group">
                     <label>Nom du badge</label>
-                    <input type="text" id="badgeName" placeholder="Ex: React.js Avancé">
+                    <input type="text" id="badgeName" placeholder="Ex: React.js Avancé" oninput="updatePreview()">
                 </div>
                 <div class="form-group">
                     <label>Compétence</label>
-                    <select id="badgeSkill">
+                    <select id="badgeSkill" onchange="updatePreview()">
                         <option>Développement Web</option>
                         <option>Développement Mobile</option>
                         <option>Data & IA</option>
@@ -64,22 +185,35 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Description / Critères</label>
-                    <textarea rows="2" id="badgeDesc" placeholder="Décrire les critères de validation..."></textarea>
-                </div>
-                <div class="form-group">
                     <label>Niveau</label>
                     <div class="level-selector">
-                        <div class="level-option" data-level="debutant" onclick="selectLevel(this, 'debutant')">🟢 Débutant</div>
-                        <div class="level-option selected" data-level="intermediaire" onclick="selectLevel(this, 'intermediaire')">🟡 Intermédiaire</div>
-                        <div class="level-option" data-level="avance" onclick="selectLevel(this, 'avance')">🔴 Avancé</div>
+                        <div class="level-option" data-level="debutant" onclick="selectLevel(this, 'debutant'); updatePreview()">🟢 Débutant</div>
+                        <div class="level-option selected" data-level="intermediaire" onclick="selectLevel(this, 'intermediaire'); updatePreview()">🟡 Intermédiaire</div>
+                        <div class="level-option" data-level="avance" onclick="selectLevel(this, 'avance'); updatePreview()">🔴 Avancé</div>
                     </div>
                 </div>
-                <div class="blockchain-tag" style="margin: 12px 0;"><i class="fas fa-cube"></i> 📍 NFT sur Polygon · 0x1B3F_01C</div>
-                <button class="btn-primary" onclick="createBadge()"><i class="fas fa-mint"></i> Créer le badge</button>
+                <div class="form-group">
+                    <label>Critères de validation</label>
+                    <textarea rows="2" id="badgeDesc" placeholder="Maîtrise des hooks, création d'API REST, tests unitaires..." oninput="updatePreview()"></textarea>
+                </div>
+                
+                <!-- Aperçu en direct -->
+                <div class="preview-badge" id="badgePreview">
+                    <div class="preview-badge-icon"><i class="fab fa-react" id="previewIcon"></i></div>
+                    <h4 id="previewName">React.js Avancé</h4>
+                    <span class="badge-success" id="previewLevel">Intermédiaire</span>
+                    <p style="font-size: 11px; margin-top: 8px;" id="previewCriteria">Maîtrise des hooks, création d'API REST...</p>
+                </div>
+
+                <div class="blockchain-tag" style="margin: 12px 0;">
+                    <i class="fas fa-cube"></i> 📍 NFT sur Polygon · Frais estimés: <span id="estimatedGas">0.0012</span> MATIC
+                </div>
+                <button class="btn-primary" onclick="createBadgeWithPreview()">
+                    <i class="fas fa-mint"></i> Créer le badge sur blockchain
+                </button>
             </div>
 
-            <!-- Attribuer un badge + Mes badges -->
+            <!-- Attribuer un badge + recherche avancée -->
             <div>
                 <div class="card" style="margin-bottom: 20px;">
                     <h3><i class="fas fa-user-plus"></i> Attribuer un badge</h3>
@@ -93,24 +227,368 @@
                     </div>
                     <div class="form-group">
                         <label>Note d'évaluation</label>
-                        <textarea rows="2" id="assignComment" placeholder="Ajouter un commentaire..."></textarea>
+                        <textarea rows="2" id="assignComment" placeholder="Ajouter un commentaire sur la validation..."></textarea>
                     </div>
-                    <button class="btn-primary" onclick="assignBadge()"><i class="fas fa-link"></i> Émettre sur blockchain</button>
+                    <div class="blockchain-tag" style="margin-bottom: 12px;">
+                        <i class="fas fa-shield-alt"></i> Cette action est irréversible sur la blockchain
+                    </div>
+                    <button class="btn-primary" onclick="assignBadgeWithAnimation()">
+                        <i class="fas fa-link"></i> Émettre sur blockchain
+                    </button>
                 </div>
+
+                <!-- Statistiques rapides -->
                 <div class="card">
-                    <h3><i class="fas fa-list"></i> Mes badges créés</h3>
-                    <div id="formateurBadgesList"></div>
+                    <h3><i class="fas fa-chart-simple"></i> Statistiques</h3>
+                    <div><span>Badges par niveau</span>
+                        <div class="chart-bar"><div class="chart-fill" style="width: 30%"></div></div>
+                        <span style="font-size: 12px;">Débutant: 30% · Intermédiaire: 45% · Avancé: 25%</span>
+                    </div>
+                    <div style="margin-top: 12px;">
+                        <span>Top compétence</span>
+                        <div class="chart-bar"><div class="chart-fill" style="width: 65%"></div></div>
+                        <span style="font-size: 12px;">Développement Web · 65% des badges</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Activité récente -->
+        <!-- Mes badges avec recherche -->
+        <div class="card" style="margin-bottom: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 16px;">
+                <h3><i class="fas fa-list"></i> Mes badges créés</h3>
+                <div class="filter-bar">
+                    <input type="text" id="badgeFilter" class="filter-input" placeholder="🔍 Rechercher un badge..." oninput="filterBadges()">
+                    <button class="export-btn" onclick="exportBadgesCSV()"><i class="fas fa-download"></i> Export CSV</button>
+                </div>
+            </div>
+            <div id="formateurBadgesList"></div>
+        </div>
+
+        <!-- Liste des apprenants détaillée -->
         <div class="card">
-            <h3><i class="fas fa-history"></i> Activité récente</h3>
+            <h3><i class="fas fa-users"></i> Mes apprenants</h3>
+            <div class="filter-bar">
+                <input type="text" id="studentFilter" class="filter-input" placeholder="🔍 Filtrer par nom..." oninput="filterStudents()">
+                <select id="levelFilter" class="filter-input" onchange="filterStudents()">
+                    <option value="all">Tous les niveaux</option>
+                    <option value="expert">Experts</option>
+                    <option value="inter">Intermédiaires</option>
+                    <option value="debutant">Débutants</option>
+                </select>
+            </div>
+            <div id="studentsList"></div>
+        </div>
+
+        <!-- Activité récente -->
+        <div class="card" style="margin-top: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3><i class="fas fa-history"></i> Activité blockchain récente</h3>
+                <button class="btn-outline" style="padding: 4px 12px; font-size: 11px;" onclick="refreshActivity()">
+                    <i class="fas fa-sync-alt"></i> Rafraîchir
+                </button>
+            </div>
             <div id="recentActivity"></div>
         </div>
     </div>
 
+    <!-- Modal détails apprenant -->
+    <div id="studentModal" class="student-detail-modal">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between;">
+                <h3 id="modalStudentName">Oumar Sawadogo</h3>
+                <button class="btn-outline" onclick="closeModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="modalStudentDetails"></div>
+            <button class="btn-primary" onclick="assignBadgeToModalStudent()" style="margin-top: 20px;">
+                <i class="fas fa-plus"></i> Attribuer un badge
+            </button>
+        </div>
+    </div>
+
     <script src="script.js"></script>
+    <script>
+        // Variables supplémentaires
+        let selectedStudentForModal = null;
+
+        // Mise à jour de l'aperçu en direct
+        function updatePreview() {
+            const name = document.getElementById('badgeName').value || "React.js Avancé";
+            const skill = document.getElementById('badgeSkill').value;
+            const levelMap = { debutant: 'Débutant', intermediaire: 'Intermédiaire', avance: 'Avancé' };
+            const level = levelMap[selectedLevel] || 'Intermédiaire';
+            const desc = document.getElementById('badgeDesc').value || "Maîtrise des hooks, création d'API REST...";
+            
+            let icon = 'fab fa-code';
+            if (skill === 'Développement Web') icon = 'fab fa-react';
+            else if (skill === 'Développement Mobile') icon = 'fab fa-flutter';
+            else if (skill === 'Data & IA') icon = 'fab fa-python';
+            else if (skill === 'UI/UX Design') icon = 'fas fa-paintbrush';
+            else icon = 'fas fa-shield-alt';
+            
+            document.getElementById('previewIcon').className = icon;
+            document.getElementById('previewName').innerHTML = name;
+            document.getElementById('previewLevel').innerHTML = level;
+            document.getElementById('previewCriteria').innerHTML = desc.substring(0, 60) + (desc.length > 60 ? '...' : '');
+            
+            // Estimation gas
+            const gas = (Math.random() * 0.002 + 0.0005).toFixed(4);
+            document.getElementById('estimatedGas').innerHTML = gas;
+        }
+
+        function createBadgeWithPreview() {
+            const name = document.getElementById('badgeName').value;
+            if (!name) { showToast('Entrez un nom de badge'); return; }
+            
+            const skill = document.getElementById('badgeSkill').value;
+            const desc = document.getElementById('badgeDesc').value;
+            const levelMap = { debutant: 'Débutant', intermediaire: 'Intermédiaire', avance: 'Avancé' };
+            const level = levelMap[selectedLevel];
+            
+            const txHash = '0x' + Math.random().toString(36).substring(2, 14);
+            const newBadge = {
+                id: Date.now(),
+                name: name,
+                skill: skill,
+                level: level,
+                desc: desc || "Aucun critère spécifié",
+                issuer: currentUser?.name || "Koanda Tinga",
+                date: new Date().toLocaleDateString(),
+                tx: txHash
+            };
+            
+            blockchainData.badges.push(newBadge);
+            blockchainData.activities.unshift(`✅ Badge "${name}" créé sur Polygon · TX: ${txHash} · Gas: ${document.getElementById('estimatedGas').innerHTML} MATIC`);
+            saveBlockchainData();
+            showToast(`🎉 Badge "${name}" créé avec succès sur la blockchain !`);
+            document.getElementById('badgeName').value = '';
+            document.getElementById('badgeDesc').value = '';
+            updateFormateurUI();
+            updatePreview();
+        }
+
+        async function assignBadgeWithAnimation() {
+            const badgeName = document.getElementById('assignBadgeSelect').value;
+            const studentName = document.getElementById('assignStudentSelect').value;
+            const comment = document.getElementById('assignComment').value;
+            
+            if (!badgeName || !studentName) { showToast('Sélectionnez un badge et un apprenant'); return; }
+            
+            showToast(`⏳ Transaction en cours... Émission du badge "${badgeName}" vers ${studentName}`);
+            
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            const badge = blockchainData.badges.find(b => b.name === badgeName);
+            const student = blockchainData.students.find(s => s.name === studentName);
+            
+            if (student) {
+                student.badges.push(badgeName);
+                student.score = Math.min(100, student.score + 5);
+            }
+            
+            const txHash = '0x' + Math.random().toString(36).substring(2, 14);
+            blockchainData.activities.unshift(`🏅 Badge "${badgeName}" attribué à ${studentName} · TX: ${txHash} · ${comment ? 'Note: ' + comment : ''}`);
+            blockchainData.notifications.unshift({ text: `✨ Nouveau badge "${badgeName}" reçu !`, time: "À l'instant", type: "badge" });
+            saveBlockchainData();
+            
+            showToast(`✅ Badge "${badgeName}" attribué à ${studentName} ! Transaction confirmée sur Polygon.`);
+            document.getElementById('assignComment').value = '';
+            updateFormateurUI();
+        }
+
+        function filterBadges() {
+            const search = document.getElementById('badgeFilter').value.toLowerCase();
+            const filtered = blockchainData.badges.filter(b => b.name.toLowerCase().includes(search));
+            document.getElementById('formateurBadgesList').innerHTML = filtered.map(b => 
+                `<div class="badge-item">
+                    <span><i class="fas fa-tag"></i> ${b.name}</span>
+                    <span class="badge-success">${b.level} · ${b.skill}</span>
+                    <span class="blockchain-tag">TX: ${b.tx}</span>
+                </div>`
+            ).join('');
+        }
+
+        function filterStudents() {
+            const search = document.getElementById('studentFilter')?.value.toLowerCase() || '';
+            const levelFilter = document.getElementById('levelFilter')?.value || 'all';
+            
+            let filtered = blockchainData.students.filter(s => s.name.toLowerCase().includes(search));
+            
+            if (levelFilter !== 'all') {
+                // Filtrer par niveau (simulation)
+                filtered = filtered.filter(s => {
+                    if (levelFilter === 'expert') return s.score > 80;
+                    if (levelFilter === 'inter') return s.score >= 60 && s.score <= 80;
+                    if (levelFilter === 'debutant') return s.score < 60;
+                    return true;
+                });
+            }
+            
+            document.getElementById('studentsList').innerHTML = filtered.map(s => `
+                <div class="student-item" onclick="showStudentDetails('${s.name}')">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <div class="avatar" style="width:32px;height:32px;font-size:12px;">${s.avatar}</div>
+                        <span><strong>${s.name}</strong><br><span class="blockchain-tag">${s.wallet}</span></span>
+                    </div>
+                    <div>
+                        <span class="badge-success">${s.badges.length} badges</span>
+                        <div class="chart-bar" style="width:80px; margin-top:4px;"><div class="chart-fill" style="width: ${s.score}%"></div></div>
+                    </div>
+                    <span class="badge-warning">Score ${s.score}</span>
+                    <button class="btn-outline" style="padding:4px 12px;" onclick="event.stopPropagation(); quickAssign('${s.name}')">+ Attribuer</button>
+                </div>
+            `).join('');
+        }
+
+        function showStudentDetails(name) {
+            const student = blockchainData.students.find(s => s.name === name);
+            if (!student) return;
+            selectedStudentForModal = student;
+            document.getElementById('modalStudentName').innerHTML = student.name;
+            document.getElementById('modalStudentDetails').innerHTML = `
+                <p><i class="fas fa-map-marker-alt"></i> ${student.city}</p>
+                <p><i class="fas fa-link"></i> Wallet: ${student.wallet}</p>
+                <p><i class="fas fa-certificate"></i> ${student.badges.length} badges obtenus</p>
+                <div class="progress-bar" style="margin:12px 0;"><div class="progress-fill" style="width: ${student.score}%"></div></div>
+                <p><strong>Badges :</strong></p>
+                ${student.badges.map(b => `<div class="badge-item"><span>${b}</span><span class="badge-success">✓</span></div>`).join('')}
+            `;
+            document.getElementById('studentModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('studentModal').classList.remove('active');
+        }
+
+        function quickAssign(studentName) {
+            document.getElementById('assignStudentSelect').value = studentName;
+            showToast(`Sélectionné : ${studentName}, choisissez un badge à attribuer`);
+        }
+
+        function assignBadgeToModalStudent() {
+            if (selectedStudentForModal) {
+                document.getElementById('assignStudentSelect').value = selectedStudentForModal.name;
+                closeModal();
+                document.getElementById('assignBadgeSelect').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function exportBadgesCSV() {
+            let csv = "Nom,Compétence,Niveau,Date émission,Hash transaction\n";
+            blockchainData.badges.forEach(b => {
+                csv += `"${b.name}","${b.skill}","${b.level}","${b.date}","${b.tx}"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `skillbadge_badges_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+            showToast('📊 Export CSV téléchargé');
+        }
+
+        function refreshActivity() {
+            updateFormateurUI();
+            showToast('Activité actualisée');
+        }
+
+        function showPendingBadges() {
+            showToast('3 badges en attente de validation');
+        }
+
+        // Override updateFormateurUI pour améliorer l'affichage
+        const originalUpdateFormateurUI = updateFormateurUI;
+        window.updateFormateurUI = function() {
+            originalUpdateFormateurUI();
+            
+            // Mettre à jour le gas price dynamique
+            const gasPriceSpan = document.getElementById('gasPrice');
+            if (gasPriceSpan) {
+                const randomGas = Math.floor(Math.random() * 20 + 8);
+                gasPriceSpan.innerHTML = randomGas;
+            }
+            
+            // Mettre à jour le taux de réussite
+            const successRate = Math.floor(Math.random() * 15 + 85);
+            document.getElementById('successRate').innerHTML = successRate;
+            document.querySelector('#successRate').nextElementSibling?.querySelector('.chart-fill')?.setAttribute('style', `width: ${successRate}%`);
+            
+            // Mettre à jour les KPIs supplémentaires
+            document.getElementById('badgesCount').innerHTML = blockchainData.badges.length;
+            document.getElementById('studentsCount').innerHTML = blockchainData.students.length;
+            
+            filterBadges();
+            filterStudents();
+        };
+
+        // Initialiser l'aperçu
+        document.addEventListener('DOMContentLoaded', () => {
+            updatePreview();
+            filterStudents();
+            
+            // Simuler gas price
+            setInterval(() => {
+                const gasPriceSpan = document.getElementById('gasPrice');
+                if (gasPriceSpan) {
+                    const randomGas = Math.floor(Math.random() * 25 + 8);
+                    gasPriceSpan.innerHTML = randomGas;
+                }
+            }, 30000);
+        });
+
+        // ============ REMPLIR LES LISTES DÉROULANTES ============
+function remplirListesAttribution() {
+    // Remplir la liste des badges
+    const badgeSelect = document.getElementById('assignBadgeSelect');
+    if (badgeSelect) {
+        badgeSelect.innerHTML = '<option value="">-- Sélectionner un badge --</option>';
+        blockchainData.badges.forEach(badge => {
+            badgeSelect.innerHTML += `<option value="${badge.name}">${badge.name} (${badge.level} - ${badge.skill})</option>`;
+        });
+    }
+    
+    // Remplir la liste des apprenants
+    const studentSelect = document.getElementById('assignStudentSelect');
+    if (studentSelect) {
+        studentSelect.innerHTML = '<option value="">-- Sélectionner un apprenant --</option>';
+        blockchainData.students.forEach(student => {
+            studentSelect.innerHTML += `<option value="${student.name}">${student.name} (${student.city}) - ${student.badges.length} badges</option>`;
+        });
+    }
+}
+
+// Appeler cette fonction après chaque modification des données
+function mettreAJourListes() {
+    remplirListesAttribution();
+    filterBadges();
+    filterStudents();
+}
+
+// Surcharger updateFormateurUI pour inclure les listes
+const ancienneUpdate = updateFormateurUI;
+updateFormateurUI = function() {
+    if (ancienneUpdate) ancienneUpdate();
+    remplirListesAttribution();
+    document.getElementById('badgesCount').innerHTML = blockchainData.badges.length;
+    document.getElementById('studentsCount').innerHTML = blockchainData.students.length;
+    filterBadges();
+    filterStudents();
+};
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', () => {
+    updatePreview();
+    remplirListesAttribution();  // ← AJOUT IMPORTANT
+    filterStudents();
+    
+    // Simuler gas price
+    setInterval(() => {
+        const gasPriceSpan = document.getElementById('gasPrice');
+        if (gasPriceSpan) {
+            const randomGas = Math.floor(Math.random() * 25 + 8);
+            gasPriceSpan.innerHTML = randomGas;
+        }
+    }, 30000);
+});
+    </script>
 </body>
 </html>

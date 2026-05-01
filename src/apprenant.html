@@ -7,14 +7,92 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Styles supplémentaires pour apprenant */
+        .filter-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            padding: 8px 20px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        .filter-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+        .stat-card-mini {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            padding: 16px;
+            text-align: center;
+        }
+        .share-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+        .share-btn {
+            padding: 8px 16px;
+            border-radius: 40px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .share-btn.whatsapp { background: #25D366; color: white; }
+        .share-btn.linkedin { background: #0077B5; color: white; }
+        .share-btn.email { background: #EA4335; color: white; }
+        .qr-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            margin: 16px 0;
+        }
+        #qrcode {
+            background: white;
+            padding: 12px;
+            border-radius: 16px;
+            margin-bottom: 12px;
+        }
+        .badge-level-tag {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+        .level-expert { background: rgba(222, 49, 37, 0.15); color: #DE3125; }
+        .level-inter { background: rgba(239, 176, 52, 0.15); color: #EFB034; }
+        .level-debutant { background: rgba(0, 158, 96, 0.15); color: #009E60; }
+        .achievement-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--bg-primary);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar">
         <div class="container">
             <div class="logo" onclick="window.location.href='index.html'" style="cursor:pointer;">
-                <div class="logo-icon"><i class="fas fa-certificate"></i></div>
-                <span>Skill<span style="color: var(--primary-light);">Badge</span></span>
+                <div class="logo-icon"><i class="fas fa-user-graduate"></i></div>
+                <span>Skill<span style="color: var(--primary-light);">Badge</span> Apprenant</span>
             </div>
             <div style="display: flex; gap: 12px; align-items: center;">
                 <div class="theme-toggle" onclick="toggleTheme()">
@@ -30,41 +108,88 @@
     </nav>
 
     <div class="container">
+        <!-- En-tête avec progression -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap;">
             <div>
                 <h2 id="welcomeApprenant">Oumar Sawadogo</h2>
                 <p style="color: var(--text-secondary);"><i class="fas fa-map-marker-alt"></i> Ouagadougou, Burkina Faso</p>
             </div>
-            <div class="badge-success">Progression globale: <span id="progressPercent">72</span>%</div>
+            <div class="stats-chip">
+                <i class="fas fa-chart-line"></i> Progression: <span id="progressPercent">72</span>%
+            </div>
+        </div>
+
+        <!-- Statistiques rapides -->
+        <div class="grid-4" style="margin-bottom: 24px;">
+            <div class="stat-card-mini">
+                <i class="fas fa-certificate" style="font-size: 24px; color: var(--primary);"></i>
+                <div class="kpi-number" id="totalBadges">0</div>
+                <p>Badges obtenus</p>
+            </div>
+            <div class="stat-card-mini">
+                <i class="fas fa-eye" style="font-size: 24px; color: var(--secondary);"></i>
+                <div class="kpi-number" id="profileViews">0</div>
+                <p>Vues du portfolio</p>
+            </div>
+            <div class="stat-card-mini">
+                <i class="fas fa-handshake" style="font-size: 24px; color: var(--primary);"></i>
+                <div class="kpi-number" id="offersReceived">0</div>
+                <p>Offres reçues</p>
+            </div>
+            <div class="stat-card-mini">
+                <i class="fas fa-trophy" style="font-size: 24px; color: var(--secondary);"></i>
+                <div class="kpi-number" id="completionRate">0</div>
+                <p>% complétion</p>
+            </div>
         </div>
 
         <div class="grid-2">
-            <!-- Mes badges -->
+            <!-- Mes badges avec filtres -->
             <div class="card">
                 <div class="card-header">
                     <h3><i class="fas fa-certificate"></i> Mes badges</h3>
-                    <div style="display: flex; gap: 8px;">
-                        <span class="badge-success">Badges</span>
-                        <span class="badge-success">Compétences</span>
-                        <span class="badge-success">Vérifié</span>
-                    </div>
+                    <span class="badge-success" id="badgeCountBadge">0 badges</span>
                 </div>
+                
+                <!-- Filtres -->
+                <div class="filter-buttons">
+                    <button class="filter-btn active" onclick="filterBadgesByLevel('all')">Tous</button>
+                    <button class="filter-btn" onclick="filterBadgesByLevel('expert')">🔴 Experts</button>
+                    <button class="filter-btn" onclick="filterBadgesByLevel('inter')">🟡 Intermédiaires</button>
+                    <button class="filter-btn" onclick="filterBadgesByLevel('debutant')">🟢 Débutants</button>
+                </div>
+                
                 <div id="apprenantBadgesList"></div>
+                
+                <!-- Badge récent (dernier badge obtenu) -->
+                <div id="recentBadgeSection" style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border);">
+                    <p style="font-size: 12px; color: var(--text-secondary);">
+                        <i class="fas fa-clock"></i> Dernier badge obtenu: <span id="lastBadge">-</span>
+                    </p>
+                </div>
             </div>
 
-            <!-- Détail badge + Notifications -->
+            <!-- Détail du badge + Notifications -->
             <div>
                 <div class="card" style="margin-bottom: 20px;">
                     <h3><i class="fas fa-info-circle"></i> Détail du badge</h3>
                     <div id="badgeDetail">
-                        <p><i class="fas fa-school"></i> <strong>Émis par</strong> CodeLab BF</p>
-                        <p><i class="fas fa-user"></i> <strong>Formateur</strong> Koanda Tinga</p>
-                        <p><i class="fas fa-calendar"></i> <strong>Date</strong> <span id="detailDate">12 avr. 2026</span></p>
-                        <p><i class="fas fa-cube"></i> <strong>Réseau</strong> Polygon</p>
-                        <p><i class="fas fa-link"></i> <strong>Hash blockchain</strong> <span class="blockchain-tag" id="detailTx">0xa83f7d_c91b4e</span></p>
-                        <button class="btn-outline" style="margin-top: 12px;" onclick="shareBadge()"><i class="fas fa-share-alt"></i> Partager ce badge →</button>
+                        <div class="preview-badge" style="padding: 16px;">
+                            <div class="preview-badge-icon" style="width: 60px; height: 60px; font-size: 28px;">
+                                <i class="fab fa-react" id="detailIcon"></i>
+                            </div>
+                            <h4 id="detailName">React.js Avancé</h4>
+                            <span class="badge-success" id="detailLevel">Avancé</span>
+                            <p style="font-size: 12px; margin-top: 12px;"><i class="fas fa-school"></i> <span id="detailIssuer">CodeLab BF</span></p>
+                            <p style="font-size: 12px;"><i class="fas fa-calendar"></i> <span id="detailDate">12 avr. 2026</span></p>
+                            <p style="font-size: 11px;"><i class="fas fa-cube"></i> <span id="detailTx" class="blockchain-tag">0xa83f7d_c91b4e</span></p>
+                        </div>
+                        <button class="btn-outline" style="margin-top: 12px; width: 100%;" onclick="shareCurrentBadge()">
+                            <i class="fas fa-share-alt"></i> Partager ce badge →
+                        </button>
                     </div>
                 </div>
+                
                 <div class="card">
                     <h3><i class="fas fa-bell"></i> Notifications</h3>
                     <div id="apprenantNotifications"></div>
@@ -72,18 +197,39 @@
             </div>
         </div>
 
-        <!-- Partager mon portfolio -->
+        <!-- Partager mon portfolio avec QR code et boutons sociaux -->
         <div class="card" style="margin-bottom: 24px;">
             <h3><i class="fas fa-qrcode"></i> Partager mon portfolio</h3>
-            <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
-                <code style="background: var(--bg-primary); padding: 12px 16px; border-radius: 40px; flex: 1; font-size: 12px;" id="portfolioLink">https://skillbadge.bf/0xOumar...3f2a</code>
-                <button class="btn-primary" style="width: auto;" onclick="copyLink()"><i class="fas fa-copy"></i> Copier</button>
-                <button class="btn-outline" onclick="exportApprenantPDF()"><i class="fas fa-download"></i> Exporter PDF</button>
+            <div class="grid-2" style="margin-bottom: 16px;">
+                <div class="qr-container">
+                    <div id="qrcode"></div>
+                    <p style="font-size: 11px; color: var(--text-secondary);">Scannez ce QR code</p>
+                </div>
+                <div>
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                        <code style="background: var(--bg-primary); padding: 12px 16px; border-radius: 40px; flex: 1; font-size: 12px; word-break: break-all;" id="portfolioLink">https://skillbadge.bf/0xOumar...3f2a</code>
+                        <button class="btn-primary" style="width: auto;" onclick="copyLink()"><i class="fas fa-copy"></i> Copier</button>
+                    </div>
+                    <div class="share-buttons">
+                        <div class="share-btn whatsapp" onclick="shareOnWhatsApp()">
+                            <i class="fab fa-whatsapp"></i> WhatsApp
+                        </div>
+                        <div class="share-btn linkedin" onclick="shareOnLinkedIn()">
+                            <i class="fab fa-linkedin"></i> LinkedIn
+                        </div>
+                        <div class="share-btn email" onclick="shareByEmail()">
+                            <i class="fas fa-envelope"></i> Email
+                        </div>
+                        <button class="btn-outline" onclick="exportPDF()">
+                            <i class="fas fa-download"></i> Exporter PDF
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="grid-2">
-            <!-- Ma progression -->
+            <!-- Ma progression détaillée -->
             <div class="card">
                 <h3><i class="fas fa-chart-line"></i> Ma progression</h3>
                 <div id="skillsProgress">
@@ -92,22 +238,289 @@
                     <div class="skill-item"><span>UI/UX Design</span><div class="progress-bar"><div class="progress-fill" style="width: 45%"></div></div></div>
                     <div class="skill-item"><span>Python</span><div class="progress-bar"><div class="progress-fill" style="width: 30%"></div></div></div>
                 </div>
-            </div>
-            <!-- Prochain badge recommandé -->
-            <div class="card">
-                <h3><i class="fas fa-lightbulb"></i> Prochain badge recommandé</h3>
-                <div class="badge-item">
-                    <span><i class="fab fa-react"></i> React.js Expert</span>
-                    <span class="badge-success">Proposé par CodeLab BF</span>
+                <div style="margin-top: 16px;">
+                    <p style="font-size: 13px; color: var(--text-secondary);">
+                        <i class="fas fa-lightbulb"></i> Prochain niveau: <span id="nextLevel">React.js Expert</span>
+                    </p>
                 </div>
-                <p style="margin: 12px 0; font-size: 13px; color: var(--text-secondary);">
-                    Complétez votre profil à 85% en obtenant ce badge
-                </p>
-                <button class="btn-primary" onclick="requestBadge()"><i class="fas fa-rocket"></i> Postuler</button>
+            </div>
+            
+            <!-- Badges recommandés et accomplissements -->
+            <div class="card">
+                <h3><i class="fas fa-lightbulb"></i> Badges recommandés</h3>
+                <div id="recommendedBadges"></div>
+                
+                <h3 style="margin-top: 20px;"><i class="fas fa-award"></i> Accomplissements</h3>
+                <div id="achievements">
+                    <div class="achievement-badge"><i class="fas fa-rocket"></i> Premier badge</div>
+                    <div class="achievement-badge"><i class="fas fa-chart-line"></i> 5 badges</div>
+                    <div class="achievement-badge"><i class="fas fa-trophy"></i> Expert</div>
+                </div>
             </div>
         </div>
     </div>
 
     <script src="script.js"></script>
+    <script>
+        let currentBadgeFilter = 'all';
+        let currentStudent = null;
+        let currentBadges = [];
+
+        // ============ RÉCUPÉRATION DES DONNÉES ============
+        function getCurrentStudent() {
+            if (blockchainData && blockchainData.students) {
+                return blockchainData.students[0];
+            }
+            return { name: "Oumar Sawadogo", avatar: "OS", wallet: "0xOumar...3f2a", city: "Ouaga", badges: ["React.js Avancé", "Flutter Débutant", "UI/UX Design"], score: 86 };
+        }
+
+        function getBadgeInfo(badgeName) {
+            if (blockchainData && blockchainData.badges) {
+                return blockchainData.badges.find(b => b.name === badgeName);
+            }
+            return { level: "Intermédiaire", issuer: "CodeLab BF", date: "2026", tx: "0x..." };
+        }
+
+        // ============ AFFICHAGE DES BADGES AVEC FILTRES ============
+        function filterBadgesByLevel(level) {
+            currentBadgeFilter = level;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderBadges();
+        }
+
+        function renderBadges() {
+            const student = getCurrentStudent();
+            if (!student) return;
+            
+            let badgesWithInfo = student.badges.map(badgeName => {
+                const info = getBadgeInfo(badgeName);
+                return { name: badgeName, level: info?.level || 'Intermédiaire', issuer: info?.issuer || 'CodeLab BF', date: info?.date || '2026', tx: info?.tx || '0x...' };
+            });
+            
+            // Appliquer filtre
+            if (currentBadgeFilter !== 'all') {
+                badgesWithInfo = badgesWithInfo.filter(b => {
+                    if (currentBadgeFilter === 'expert') return b.level === 'Avancé';
+                    if (currentBadgeFilter === 'inter') return b.level === 'Intermédiaire';
+                    if (currentBadgeFilter === 'debutant') return b.level === 'Débutant';
+                    return true;
+                });
+            }
+            
+            currentBadges = badgesWithInfo;
+            
+            const container = document.getElementById('apprenantBadgesList');
+            if (container) {
+                if (badgesWithInfo.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; padding: 40px; color: var(--text-secondary);">Aucun badge dans cette catégorie</p>';
+                } else {
+                    container.innerHTML = badgesWithInfo.map(b => `
+                        <div class="badge-item" onclick="showBadgeDetail('${b.name}')" style="cursor: pointer;">
+                            <span><i class="fas fa-certificate" style="color: var(--primary);"></i> <strong>${b.name}</strong></span>
+                            <span class="badge-level ${b.level === 'Avancé' ? 'level-expert' : (b.level === 'Intermédiaire' ? 'level-inter' : 'level-debutant')}">${b.level}</span>
+                            <span class="blockchain-tag">${b.date}</span>
+                            <span class="badge-success">✓ Vérifié</span>
+                        </div>
+                    `).join('');
+                }
+            }
+            
+            // Mettre à jour le compteur
+            document.getElementById('badgeCountBadge').innerHTML = `${badgesWithInfo.length} badges`;
+            document.getElementById('totalBadges').innerHTML = student.badges.length;
+            document.getElementById('completionRate').innerHTML = Math.min(100, student.badges.length * 12 + 20);
+            
+            // Dernier badge
+            if (student.badges.length > 0) {
+                document.getElementById('lastBadge').innerHTML = student.badges[student.badges.length - 1];
+            }
+            
+            // Progression
+            const progress = Math.min(100, student.badges.length * 12 + 20);
+            document.getElementById('progressPercent').innerHTML = progress;
+            
+            // Statistiques simulées
+            document.getElementById('profileViews').innerHTML = Math.floor(Math.random() * 50 + 10);
+            document.getElementById('offersReceived').innerHTML = Math.floor(Math.random() * 5);
+        }
+
+        // ============ DÉTAIL D'UN BADGE ============
+        function showBadgeDetail(badgeName) {
+            const badge = getBadgeInfo(badgeName);
+            if (!badge) return;
+            
+            let icon = 'fab fa-code';
+            if (badge.name.includes('React')) icon = 'fab fa-react';
+            else if (badge.name.includes('Flutter')) icon = 'fab fa-flutter';
+            else if (badge.name.includes('Python') || badge.name.includes('Data')) icon = 'fab fa-python';
+            else if (badge.name.includes('UI') || badge.name.includes('UX') || badge.name.includes('Design')) icon = 'fas fa-paintbrush';
+            
+            document.getElementById('detailIcon').className = icon;
+            document.getElementById('detailName').innerHTML = badge.name;
+            document.getElementById('detailLevel').innerHTML = badge.level;
+            document.getElementById('detailIssuer').innerHTML = badge.issuer;
+            document.getElementById('detailDate').innerHTML = badge.date;
+            document.getElementById('detailTx').innerHTML = badge.tx;
+            
+            showToast(`ℹ️ Détails du badge: ${badge.name}`);
+        }
+
+        function shareCurrentBadge() {
+            const badgeName = document.getElementById('detailName').innerHTML;
+            navigator.clipboard.writeText(`🎓 Je possède le badge "${badgeName}" certifié sur SkillBadge blockchain ! Vérifiez sur https://skillbadge.bf/portfolio`);
+            showToast(`📤 Badge "${badgeName}" partagé !`);
+        }
+
+        // ============ NOTIFICATIONS ============
+        function renderNotifications() {
+            const notifs = blockchainData?.notifications || [
+                { text: "Nouveau badge disponible !", time: "À l'instant" },
+                { text: "Votre portfolio a été consulté 3 fois cette semaine", time: "Il y a 2 jours" }
+            ];
+            const container = document.getElementById('apprenantNotifications');
+            if (container) {
+                container.innerHTML = notifs.slice(0,3).map(n => `
+                    <div class="notification-item">
+                        <i class="fas fa-bell" style="color: var(--primary);"></i> ${n.text}
+                        <br><span class="blockchain-tag">${n.time}</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // ============ BADGES RECOMMANDÉS ============
+        function renderRecommendedBadges() {
+            const student = getCurrentStudent();
+            const allBadges = blockchainData?.badges || [];
+            const ownedBadges = student.badges;
+            const recommended = allBadges.filter(b => !ownedBadges.includes(b.name)).slice(0, 3);
+            
+            const container = document.getElementById('recommendedBadges');
+            if (container) {
+                if (recommended.length === 0) {
+                    container.innerHTML = '<p style="color: var(--text-secondary);">🎉 Félicitations ! Vous avez tous les badges disponibles !</p>';
+                } else {
+                    container.innerHTML = recommended.map(b => `
+                        <div class="badge-item">
+                            <span><i class="fas fa-gem" style="color: var(--secondary);"></i> <strong>${b.name}</strong></span>
+                            <span class="badge-success">${b.level}</span>
+                            <button class="btn-outline" style="padding: 4px 12px;" onclick="requestBadge('${b.name}')">Postuler →</button>
+                        </div>
+                    `).join('');
+                }
+            }
+        }
+
+        function requestBadge(badgeName) {
+            showToast(`📨 Demande envoyée au formateur pour le badge "${badgeName}"`);
+        }
+
+        // ============ PARTAGE ============
+        function copyLink() {
+            const student = getCurrentStudent();
+            const link = `https://skillbadge.bf/${student.wallet}`;
+            navigator.clipboard.writeText(link);
+            showToast('📋 Lien copié dans le presse-papier !');
+        }
+
+        function shareOnWhatsApp() {
+            const student = getCurrentStudent();
+            const link = `https://skillbadge.bf/${student.wallet}`;
+            window.open(`https://wa.me/?text=🎓 Découvrez mon portfolio blockchain SkillBadge : ${link}`, '_blank');
+        }
+
+        function shareOnLinkedIn() {
+            const student = getCurrentStudent();
+            const link = `https://skillbadge.bf/${student.wallet}`;
+            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(link)}`, '_blank');
+        }
+
+        function shareByEmail() {
+            const student = getCurrentStudent();
+            const link = `https://skillbadge.bf/${student.wallet}`;
+            window.location.href = `mailto:?subject=Mon portfolio blockchain SkillBadge&body=Découvrez mes compétences certifiées : ${link}`;
+        }
+
+        // ============ EXPORT PDF ============
+        function exportPDF() {
+            const element = document.querySelector('.container');
+            const opt = {
+                margin: [0.5, 0.5, 0.5, 0.5],
+                filename: `skillbadge_portfolio_${getCurrentStudent().name.replace(/\s/g, '_')}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, letterRendering: true },
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+            showToast('📄 PDF exporté avec succès !');
+        }
+
+        // ============ GÉNÉRATION QR CODE ============
+        function generateQRCode() {
+            const student = getCurrentStudent();
+            const link = `https://skillbadge.bf/${student.wallet}`;
+            const qrContainer = document.getElementById('qrcode');
+            if (qrContainer) {
+                qrContainer.innerHTML = '';
+                if (typeof QRCode !== 'undefined') {
+                    new QRCode(qrContainer, {
+                        text: link,
+                        width: 120,
+                        height: 120,
+                        colorDark: '#000000',
+                        colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+                } else {
+                    qrContainer.innerHTML = `<div style="width:120px;height:120px;background:white;border-radius:12px;display:flex;align-items:center;justify-content:center;"><i class="fas fa-qrcode" style="font-size:48px;color:#000;"></i></div>`;
+                }
+            }
+            document.getElementById('portfolioLink').innerHTML = link;
+        }
+
+        // ============ INITIALISATION ============
+        function refreshApprenantUI() {
+            generateQRCode();
+            renderBadges();
+            renderNotifications();
+            renderRecommendedBadges();
+            
+            // Informations utilisateur
+            const student = getCurrentStudent();
+            document.getElementById('welcomeApprenant').innerHTML = student.name;
+            document.getElementById('apprenantAvatar').innerHTML = student.avatar;
+            document.getElementById('apprenantNameDisplay').innerHTML = student.name;
+            
+            // Afficher le premier badge par défaut
+            if (student.badges.length > 0) {
+                showBadgeDetail(student.badges[0]);
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `<i class="fas fa-check-circle"></i> ${msg}`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Désactiver l'override de script.js
+        if (typeof window.updateApprenantUI !== 'undefined') {
+            window.updateApprenantUI = function() {};
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            refreshApprenantUI();
+            
+            // Simuler des notifications périodiques
+            setInterval(() => {
+                if (Math.random() > 0.7) {
+                    showToast('🔔 Nouvelle vue sur votre portfolio !');
+                }
+            }, 30000);
+        });
+    </script>
 </body>
 </html>
